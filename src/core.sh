@@ -1050,8 +1050,8 @@ add() {
     if [[ $is_use_tls ]]; then
         if [[ ! $is_no_auto_tls && ! $is_caddy ]]; then
             # test auto tls
-            [[ $(is_test port_used 80) || $(is_test port_used 443) ]] && {
-                warn "端口 (80 或 443) 已经被占用, 无法完成自动配置 TLS. 请考虑使用 no-auto-tls"
+            [[ $(is_test port_used 80) || $(is_test port_used 2053) ]] && {
+                warn "端口 (80 或 2053) 已经被占用, 无法完成自动配置 TLS. 请考虑使用 no-auto-tls"
                 msg "\e[41m帮助(help)\e[0m: $(msg_ul https://233boy.com/$is_core/no-auto-tls/)\n"
                 exit 1
             }
@@ -1197,7 +1197,7 @@ get() {
                 is_dynamic_port_range=$(jq -r '.inbounds[0].port' $is_dynamic_port_file)
                 [[ $? != 0 ]] && err "无法读取动态端口文件: $is_dynamic_port"
             fi
-            [[ $is_client && $host ]] && port=443
+            [[ $is_client && $host ]] && port=2053
             get protocol $is_protocol-$net
         fi
         ;;
@@ -1307,7 +1307,7 @@ get() {
             net=reality
             [[ ! $is_servername ]] && is_servername=$is_random_servername
             [[ ! $is_private_key ]] && get_pbk
-            is_stream='streamSettings:{network:"tcp",security:"reality",realitySettings:{dest:'\"${is_servername}\:443\"',serverNames:['\"${is_servername}\"',""],publicKey:'\"$is_public_key\"',privateKey:'\"$is_private_key\"',shortIds:[""]}}'
+            is_stream='streamSettings:{network:"tcp",security:"reality",realitySettings:{dest:'\"${is_servername}\:2053\"',serverNames:['\"${is_servername}\"',""],publicKey:'\"$is_public_key\"',privateKey:'\"$is_private_key\"',shortIds:[""]}}'
             if [[ $is_client ]]; then
                 is_stream='streamSettings:{network:"tcp",security:"reality",realitySettings:{serverName:'\"${is_servername}\"',"fingerprint": "ios",publicKey:'\"$is_public_key\"',"shortId": "","spiderX": "/"}}'
             fi
@@ -1464,19 +1464,19 @@ info() {
             is_url_path=serviceName
         }
         [[ $is_protocol == 'vmess' ]] && {
-            is_vmess_url=$(jq -c '{v:2,ps:'\"233boy-$host\"',add:'\"$is_addr\"',port:'\"443\"',id:'\"$uuid\"',aid:"0",net:'\"$net\"',host:'\"$host\"',path:'\"$path\"',tls:'\"tls\"'}' <<<{})
+            is_vmess_url=$(jq -c '{v:2,ps:'\"233boy-$host\"',add:'\"$is_addr\"',port:'\"2053\"',id:'\"$uuid\"',aid:"0",net:'\"$net\"',host:'\"$host\"',path:'\"$path\"',tls:'\"tls\"'}' <<<{})
             is_url=vmess://$(echo -n $is_vmess_url | base64 -w 0)
         } || {
             [[ $is_trojan ]] && {
                 uuid=$trojan_password
-                is_info_str=($is_protocol $is_addr 443 $trojan_password $net $host $path 'tls')
+                is_info_str=($is_protocol $is_addr 2053 $trojan_password $net $host $path 'tls')
                 is_can_change=(0 2 3 4)
                 is_info_show=(0 1 2 10 4 6 7 8)
             }
-            is_url="$is_protocol://$uuid@$host:443?encryption=none&security=tls&type=$net&host=$host&${is_url_path}=$(sed 's#/#%2F#g' <<<$path)#233boy-$host"
+            is_url="$is_protocol://$uuid@$host:2053?encryption=none&security=tls&type=$net&host=$host&${is_url_path}=$(sed 's#/#%2F#g' <<<$path)#233boy-$host"
         }
         [[ $is_caddy ]] && is_can_change+=(13)
-        is_info_str=($is_protocol $is_addr 443 $uuid $net $host $path 'tls')
+        is_info_str=($is_protocol $is_addr 2053 $uuid $net $host $path 'tls')
         ;;
     reality)
         is_color=41
